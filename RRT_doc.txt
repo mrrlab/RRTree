@@ -1,0 +1,338 @@
+                               RRTree
+
+                    a program for relative-rate tests
+
+                            version 1.1
+
+
+
+The program RRTree compares substitution rates between DNA or protein
+sequences grouped or not in phylogenetically defined lineages. The methods
+involved are mostly described in:
+
+Robinson M, Gouy M, Gautier C, Mouchiroud D (1998) "Sensitivity of the relative
+-rate test to taxonomic sampling", Mol Biol Evol 15(9):1091-1098.
+
+The reference for the software itself is:
+
+Marc Robinson-Rechavi and Dorothée Huchon (2000) "RRTree: Relative-Rate Tests between groups of sequences on a phylogenetic tree", Bioinformatics 16(3): 296-297.
+
+
+The source file, this documentation, and example files may be freely downloaded
+from:
+
+http://pbil.univ-lyon1.fr/software/rrtree.html
+ftp://pbil.univ-lyon1.fr/pub/mol_phylogeny/rrtree/
+
+To use this program, just compile it with any standard C compiler available.
+There is only one source file, no extra ".h" or makefile. On unix, the command
+to compile the program will generally be something like:
+
+cc -o RRTree -O RRTree.c -lm
+
+Compiled versions for PC (RRTree.exe and RRTree_PC.zip) and Macintosh
+(RRTree_Mac.sea.hqx) are also available. For Macintosh users, see remarks at the
+end of this file.
+
+
+** Entry files
+
+RRTree uses 3 entry files, one compulsory and two optional:
+
+- a file of all aligned sequences. Order of sequences is not important.
+The following formats are implemented: MASE, CLUSTAL, GDE, FASTA, PHYLIP,
+NEXUS, MEGA, LINTREE and PHYLTEST. There may be bugs in the implementation of 
+PHYLIP and NEXUS, as these are complex formats I do not use commonly. So don't
+be afraid to report any bugs!
+
+- an optional command file, which allows defining in advance the user options
+which will then be used by the program. This is especially practical when
+similar computations have to be done, in peculiar to avoid re-entering lineage
+affectation of sequences (see below).
+
+
+- an optional NEWICK/PHYLIP file containing a guide tree.
+
+The program can be run without any guide tree, in which case the option not to
+take topology into account should be chosen. Please note that RRTree does not
+construct a tree, it must be provided.
+
+You will find example files of all formats at the FTP site. Please let me know
+if you favourite format is missing.
+
+There are no compulsory rules on the file names, even though the program suggests
+default names.
+
+
+** Options and choices
+
+There are many questions asked to the user, most of which have a default
+answer between brackets [ ]. This answer will be accepted by simply pressing
+the enter/return key, and I hope is generally not a bad choice. Answers to
+questions may also be recorded in a command file; this is explained further on.
+
+
+The most important choice is that affecting sequences to lineages. You may
+define as many lineages as you choose (no more than sequences!). The program
+will then present you with each sequence name, and ask you to affect it to any
+lineage, including outgroup (defined by zero, not by the capital "o"). You can
+also exclude sequences from the analysis (defined by -1).
+
+In the following example, three lineages were defined, primates, rodents
+and ungulates, birds being the outgroup, and the carnivore excluded:
+
+> For each sequence, give its lineage number (1 to 3), or 0 for the outgroup
+> lineage, or -1 to exclude a sequence from the computation:
+> Human: 1
+> Mouse: 2
+> Sheep: 3
+> Pig: 3
+> Mink: -1
+> Guinea_pig: 2
+> Horse: 3
+> Chicken: 0
+
+	These lineages may also be defined in the command file (see further on).
+
+	If you define more than 2 lineages, all pairwise comparisons will be
+done: 1-2, 1-3 and 2-3 for 3 lineages. Do not abuse of this option, as
+repetition of tests makes your tests less and less reliable! A good rule of
+thumb is dividing the risk threshold by the number of tests. In the example of 3
+tests, don't use a 5% threshold but a 5/3=1.7% threshold.
+
+	You can also give the lineages labels of your choice, for example
+"murids" and "primates", or "parasitic" and "nonparasitic", etc.
+
+
+** Trees
+
+	Branches of the guide tree supported by less than a given support score
+(bootstrap or whatever kind of numerical parameter choosed by the user) can be
+considered as unresolved, resulting in additional polytomies. Branches of length
+zero are always considered as unresolved. Polytomies can also be noted by
+absence of branches. Thus the following examples are three possible notations of
+the same tree, with a polytomy between mouse, guinea pig and human (assuming a
+score limit of 50):
+
+(Chicken,(Human,((Sheep,Pig),Horse,Mink),Mouse,Guinea_pig));
+(Chicken,((Human,((Sheep,Pig)80,(Horse,Mink)45)95)45,(Mouse,Guinea_pig)45)100);
+(Chicken:0.4,((Human:0.2,((Sheep:0.05,Pig:0.05):0.05,(Horse:0.1,Mink:0.1):0.0):0.1):0.0,(Mouse:0.2,Guinea_pig:0.2):0.0):0.2);
+
+
+                          ***  IMPORTANT  ***
+
+The branch separating outgroups from ingroups must not be considered unresolved
+(length 0 or support under threshold), and the outgroup must be monophyletic
+relative to the ingroups
+
+As RRTree does not have a graphical interface, I recomand PC and Mac users copy
+your entry files into the same folder as the application.
+
+
+                          *******************
+
+
+** Distances computed
+
+On coding sequences, RRTree computes synonymous and non synonymous rates according
+to the method of Li (1993) and Pamilo and Bianchi (1993). The parameters computed
+are:
+
+- Ks	number of synonymous substitutions per synonymous site.
+- As	number of synonymous transitions per synonymous site.
+- B4	number of synonymous transversions per fourfold degenerate site.
+- Ka	number of non synonymous substitutions per non synonymous site.
+- Ba	number of non synonymous transversions per non synonymous site.
+
+The default is to compute Ks and Ka, which sum all the information. The other
+parameters are computed in case of problems with these two parameters, and I
+advise against computing all parameters in all cases, as you again will have
+a problem of test repetition, plus one of non independence between these tests.
+
+- As is usefull when Ks is very small. There may be more information on rate
+differences using transitions alone than all synonymous substitutions in that
+case, because they are the fastest.
+- B4 is usefull when Ks is saturated because of saturation of transitions. It's
+the opposite case from above, you may find information in the generally slower
+transversions.
+- Ba may be usefull when Ka is saturated, although I personnally never
+encountered the case!
+
+More important in my opinion, both B4 and Ba are very usefull when there
+is a GC-content difference between compared sequences, which will bias Ks and Ka
+estimates (Saccone et al. 1989). In such a case, transversions escape the bias
+(Galtier and Gouy 1995), so they should be prefered. The problem is that B4 may
+be computed on not so many sites, so beware of its high variance.
+
+
+On non coding sequences, RRTree computes the 1-parameter distance of
+Jukes-Cantor (1969), or the 2-parameter distance of Kimura (1980), which
+distinguishes between transitions and transversions.
+
+
+On proteic sequences, RRTree computes a simple adaptation of the Jukes-Cantor method.
+
+
+In all cases, covariances are computed as in Li and Bousquet (1992),
+that is by calculating the sum of variances of relevant internal branches, and
+not as in Takezaki, Rzhetsky and Nei (1995), who use the direct estimation
+method of Bulmer (1991). If you wish to use that method, the program of Takezaki
+et al. is freely available at:
+
+http://www.bio.psu.edu/faculty/nei/imeg/
+
+
+** Command file:
+
+It may contain as many empty lines as you wish, and any line starting with "#"
+will be ignored as remarks. All other lines must contain an identifier, followed
+by a column ":", followed by the value. The identifiers recognized are:
+
+"aligned" -> name of the input file of aligned sequences.
+"format" -> file format (MASE, PHYLIP, FASTA, ...).
+"length" -> only for PHYLIP files, the length of sequence names.
+"lineages" (with a final "s") -> number of defined lineages.
+"outgroup" -> name of the outgroup lineage.
+"lineage" followed by a number ("lineage1", "lineage2", ...) -> name of the
+specified lineage.
+"type" -> sequence type .Possible values: "cds" (coding sequence), "nc" (non
+coding), or "prot" (protein).
+"code" -> genetic code. Possible values: "nucl" (nuclear) or "mito" (vertebrate
+mitochondrial code).
+"topology" -> 1/0 choice to use topological weigths.
+"tree" -> name of the input tree file.
+"threshold" -> value under which nodes are considered unresolved. If specified
+as 0, no threshold used.
+"text" -> output text file. If specified as 0, output on screen.
+"table" -> output table file. If specified as 0, no such file.
+"ks", "ka", "ba", "b4", "as" -> 1/0 choice to use these distance measures or
+not. Will only be read if the input file is coding sequences (cds).
+"distance" -> distance measure used on non coding DNA sequences (nc). Possible
+values: "jc" (Jukes-Cantor 1 parameter) or "k2" (Kimura 2 parameters).
+
+And most important, any sequence name may be followed by its lineage
+attribution. For example:
+HOMO_GH: 1
+means that sequence "HOMO_GH" is in lineage 1.
+
+Although you can create manually a command file, it is easiest to run a
+first time RRTree with manual input of option values, asking the program to
+create a command file. You will then be able to use this file to re-run the same
+commands, and especially modify it (through any text editor, "save as text") in
+order to do further runs with little differences.
+
+You can download an example file called "exple.com".
+
+
+** Output
+
+RRTree has 2 outputs:
+
+- a compulsory text output intended for human readers, which may appear on
+the screen or be written to a file. It includes all available information,
+including the exact probability.
+
+- an optional output file which contains numerical results in a table form,
+and which I hope to be practical for systematic treatment of the results,
+through Excel or any other software.
+
+
+The test is significant at a given level (say 5%) if P is smaller than that
+level (say 0.05). In other words:
+- P=0.9 is highly non significant, the two lineages evolve at the same rate.
+- P=0.0001 is highly significant, one lineage evolves much faster than the
+other.
+
+
+I do not believe that there is anything tricky in the options or computations
+involved, but please contact me otherwise.
+
+
+** For unix or MS-DOS users:
+
+You may specify the comand file after the executable name:
+
+prompt% RRTree file.com
+
+There used to be a possibility of automatically using all default options, this
+has been replaced by use of the command file.
+
+It is recomanded for PC usesr to always save the output in a file, as the
+MSDOS window does not allow reading more than the last page printed on the
+screen.
+
+
+** For Macintosh users:
+
+A compiled version for Macintosh is also available through FTP. It is Binhexed
+and Stuffed. Most FTP softwares (including Netscape) should uncompress it
+automatically, providing you with the source, the documentation and example
+files, and the application, but in case of problem please contact me. It should
+work all Macintoshes.
+
+
+** Error messages:
+
+RRTree gives error messages when incompatibilities are found between the data
+expected and input, or in case of computation problems. The most common
+error messages are:
+
+- When coding sequences do not contain a number of nucleotides divisable by
+three. Coding sequences are expected to always be in phase 1, and not contain
+any frame-shits. 
+- When data are saturated. When divergence between sequences is too great, it
+can become impossible to compute distances.
+- When the outgroup is not monophyletic relative to the ingroups.
+
+
+
+**
+
+
+All source codes are yours to use and modify freely as long as it's not for
+commercial purposes, and that I'm credited.
+
+Marc Robinson-Rechavi - 31/july/2001
+
+References:
+
+Bulmer M (1991) Use of the method of generalized least squares in
+reconstructing phylogenies from sequence data. Mol Biol Evol 8: 868-883
+Galtier N, Gouy M (1995) Inferring phylogenies from DNA sequences of
+unequal base compositions. Proc Natl Acad Sci USA 92: 11317-11321
+Galtier N, Gouy M, Gautier C (1996) SEAVIEW and PHYLO_WIN: two
+graphic tools for sequence alignment and molecular phylogeny. Comput Appl
+Biosci 12: 543-548
+Jukes TH, Cantor CR (1969) Evolution of protein molecules. in Munro HN
+(Ed.) Mammalian protein metabolism. Academic Press, New York
+Kimura M (1980) A simple method for estimating evolutionary rates of base
+substitutions through comparative studies of nucleotide sequences. J Mol
+Evol 16: 111-120
+Li P, Bousquet J (1992) Relative-rate test for nucleotide substitutions
+between two lineages. Mol Biol Evol 9: 1185-1189
+Li WH (1993) Unbiased estimation of the rates of synonymous and
+nonsynonymous substitution. J Mol Evol 36: 96-99
+Maddison DR, Swofford DL, Maddison WP (1997) NEXUS: an extensible
+file format for systematic information. Syst Biol 46: 590-621
+Pamilo P, Bianchi NO (1993) Evolution of the Zfx and Zfy genes : rates and
+interdependence between the genes. Mol Biol Evol 10: 271-281
+Robinson M, Gouy M, Gautier C, Mouchiroud D (1998) "Sensitivity of the
+relative-rate test to taxonomic sampling", Mol Biol Evol 15:1091-1098.
+Saccone C, Pesole G, Preparata G (1989) DNA microenvironments and the
+molecular clock. J Mol Evol 29: 407-411
+Takezaki N, Rzhetsky A, Nei M (1995) Phylogenetic test of the molecular
+clock and linearized trees. Mol Biol Evol 12: 823-833
+
+________________________________________________________________
+
+http://www.ens-lyon.fr/~mrobinso/
+Laboratoire de Biologie Moleculaire et Cellulaire
+Ecole Normale Superieure de Lyon
+46, Allee d'Italie
+69364 Lyon Cedex 07 FRANCE
+
+tel    : +33 - 4 72 72 86 85
+fax    : +33 - 4 72 72 80 80
+e-mail : marc.robinson@ens-lyon.fr
+________________________________________________________________
+

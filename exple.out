@@ -1,0 +1,60 @@
+## treatement of 3 lineages from file exple.phy ##
+
+
+topologic weight of sequences:
+> Outgroup:
+Chicken	1.000000
+> Human:
+Human	1.000000
+> Rodents:
+Mouse	0.500000
+Guinea_pig	0.500000
+
+
+number of compared sites: 127.0
+mean K Human: 0.495046
+mean K Rodents: 0.488462
+dK: 0.006584	standard deviation (sd): 0.078236	ratio dK/sd: 0.084150
+exact probability (P): 0.932937
+
+
+topologic weight of sequences:
+> Outgroup:
+Chicken	1.000000
+> Human:
+Human	1.000000
+> Ferungulates:
+Sheep	0.166667
+Pig	0.166667
+Mink	0.333333
+Horse	0.333333
+
+
+number of compared sites: 127.0
+mean K Human: 0.495046
+mean K Ferungulates: 0.479803
+dK: 0.015243	standard deviation (sd): 0.058406	ratio dK/sd: 0.260976
+exact probability (P): 0.794113
+
+
+topologic weight of sequences:
+> Outgroup:
+Chicken	1.000000
+> Rodents:
+Mouse	0.500000
+Guinea_pig	0.500000
+> Ferungulates:
+Sheep	0.166667
+Pig	0.166667
+Mink	0.333333
+Horse	0.333333
+
+
+number of compared sites: 127.0
+mean K Rodents: 0.488462
+mean K Ferungulates: 0.479803
+dK: 0.008659	standard deviation (sd): 0.085090	ratio dK/sd: 0.101762
+exact probability (P): 0.918946
+
+
+
